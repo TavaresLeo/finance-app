@@ -6,11 +6,13 @@ import { AppError } from './shared/errors/AppError'
 import authRoutes from './infrastructure/web/routes/auth.routes'
 import transactionRoutes from './infrastructure/web/routes/transaction.routes'
 import { authMiddleware } from './infrastructure/web/middleware/auth'
+import installmentRoutes from './infrastructure/web/routes/installment.routes'
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
+app.use('/installments', authMiddleware, installmentRoutes)
 
 // Health check
 app.get('/health', async (req, res) => {
