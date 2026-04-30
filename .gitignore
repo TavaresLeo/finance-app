@@ -1,10 +1,21 @@
+# Dependências
 node_modules/
+
+# Ambiente
 .env
 .env.local
 .env.production
+
+# Build
 dist/
+
+# Logs
 *.log
 npm-debug.log*
+
+# Sistema
 .DS_Store
 Thumbs.db
+
+# Prisma
 prisma/*.db
