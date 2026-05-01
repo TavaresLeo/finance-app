@@ -1,4 +1,4 @@
-import { Investment } from '@prisma/client'
+import { Investment } from '../../../application/interfaces/IInvestmentRepository'
 import { prisma } from '../../../config/database'
 import {
   CreateInvestmentData,

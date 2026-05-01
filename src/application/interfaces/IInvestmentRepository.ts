@@ -1,4 +1,13 @@
-import { Investment } from '@prisma/client'
+export interface Investment {
+  id: string
+  userId: string
+  type: 'STOCK' | 'ETF' | 'CDI' | 'CRYPTO'
+  asset: string
+  quantity: number
+  averagePrice: number
+  createdAt: Date
+  updatedAt: Date
+}
 
 export interface CreateInvestmentData {
   userId: string
