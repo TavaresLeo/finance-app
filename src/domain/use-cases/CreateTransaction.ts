@@ -3,6 +3,7 @@ import { CreateTransactionDTO } from '../../application/dto/CreateTransactionDTO
 import { ITransactionRepository } from '../../application/interfaces/ITransactionRepository'
 import { AppError } from '../../shared/errors/AppError'
 import { prisma } from '../../config/database'
+import { socketService } from '../../infrastructure/services/SocketService'
 
 export class CreateTransaction {
   constructor(private transactionRepository: ITransactionRepository) {}
@@ -28,6 +29,12 @@ export class CreateTransaction {
     await prisma.account.update({
       where: { id: data.accountId },
       data: { balance: newBalance },
+    })
+    
+    // Emite evento em tempo real para o usuário
+    socketService.emitToUser(userId, 'transaction:created', {
+      transaction,
+      newBalance,
     })
 
     return transaction

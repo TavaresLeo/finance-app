@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Socket.io Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>🔌 Socket.io — Teste em Tempo Real</h2>
+  <div id="status">Conectando...</div>
+  <div id="events" style="margin-top:20px; font-family:monospace"></div>
+
+  <script>
+    const socket = io('http://localhost:3000')
+    const userId = 'cmokvheh20000b4vcmu5zos89'
+
+    socket.on('connect', () => {
+      document.getElementById('status').innerHTML = '✅ Conectado: ' + socket.id
+      socket.emit('join', userId)
+    })
+
+    socket.on('transaction:created', (data) => {
+      const div = document.getElementById('events')
+      div.innerHTML += '<p>💸 Nova transação: R$' + data.transaction.amount + ' (' + data.transaction.type + ') | Saldo: R$' + data.newBalance + '</p>'
+    })
+
+    socket.on('installment:created', (data) => {
+      const div = document.getElementById('events')
+      div.innerHTML += '<p>📦 Parcelamento criado: ' + data.installments + 'x de R$' + (data.totalAmount / data.installments) + '</p>'
+    })
+
+    socket.on('disconnect', () => {
+      document.getElementById('status').innerHTML = '❌ Desconectado'
+    })
+  </script>
+</body>
+</html>

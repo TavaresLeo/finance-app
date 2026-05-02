@@ -1,20 +1,24 @@
+import http from 'http'
 import express from 'express'
 import cors from 'cors'
 import { env } from './config/env'
 import { prisma } from './config/database'
 import { AppError } from './shared/errors/AppError'
+import { socketService } from './infrastructure/services/SocketService'
 import authRoutes from './infrastructure/web/routes/auth.routes'
 import transactionRoutes from './infrastructure/web/routes/transaction.routes'
-import { authMiddleware } from './infrastructure/web/middleware/auth'
 import installmentRoutes from './infrastructure/web/routes/installment.routes'
 import investmentRoutes from './infrastructure/web/routes/investment.routes'
+import { authMiddleware } from './infrastructure/web/middleware/auth'
 
 const app = express()
+const httpServer = http.createServer(app)
+
+// Inicializa Socket.io
+socketService.initialize(httpServer)
 
 app.use(cors())
 app.use(express.json())
-app.use('/installments', authMiddleware, installmentRoutes)
-app.use('/investments', authMiddleware, investmentRoutes)
 
 // Health check
 app.get('/health', async (req, res) => {
@@ -36,6 +40,8 @@ app.use('/auth', authRoutes)
 
 // Rotas protegidas
 app.use('/transactions', authMiddleware, transactionRoutes)
+app.use('/installments', authMiddleware, installmentRoutes)
+app.use('/investments', authMiddleware, investmentRoutes)
 
 // Handler global de erros
 app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -46,7 +52,9 @@ app.use((err: unknown, req: express.Request, res: express.Response, next: expres
   return res.status(500).json({ error: 'Erro interno do servidor.' })
 })
 
-app.listen(env.port, () => {
+// Usa httpServer em vez de app.listen
+httpServer.listen(env.port, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${env.port}`)
+  console.log(`🔌 Socket.io ativo`)
   console.log(`📋 Ambiente: ${env.nodeEnv}`)
 })
