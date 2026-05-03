@@ -10,6 +10,7 @@ import transactionRoutes from './infrastructure/web/routes/transaction.routes'
 import installmentRoutes from './infrastructure/web/routes/installment.routes'
 import investmentRoutes from './infrastructure/web/routes/investment.routes'
 import { authMiddleware } from './infrastructure/web/middleware/auth'
+import { helmetMiddleware, generalLimiter, authLimiter, sanitizeBody, auditLog } from './infrastructure/web/middleware/security'
 
 const app = express()
 const httpServer = http.createServer(app)
@@ -19,6 +20,11 @@ socketService.initialize(httpServer)
 
 app.use(cors())
 app.use(express.json())
+// Segurança
+app.use(helmetMiddleware)
+app.use(generalLimiter)
+app.use(sanitizeBody)
+app.use(auditLog)
 
 // Health check
 app.get('/health', async (req, res) => {
@@ -36,7 +42,7 @@ app.get('/health', async (req, res) => {
 })
 
 // Rotas públicas
-app.use('/auth', authRoutes)
+app.use('/auth', authLimiter, authRoutes)
 
 // Rotas protegidas
 app.use('/transactions', authMiddleware, transactionRoutes)
