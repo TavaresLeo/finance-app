@@ -9,13 +9,20 @@ export class LoginUser {
   constructor(private userRepository: IUserRepository) {}
 
   async execute(data: LoginDTO): Promise<{ token: string; userId: string }> {
-    const user = await this.userRepository.findByEmail(data.email)
-    if (!user) throw new AppError('Credenciais inválidas.', 401)
+  console.log('Buscando usuário:', data.email)
+  const user = await this.userRepository.findByEmail(data.email)
+  console.log('Usuário encontrado:', user ? 'sim' : 'não')
+  
+  if (!user) throw new AppError('Credenciais inválidas.', 401)
 
-    const passwordMatch = await bcrypt.compare(data.password, user.password)
-    if (!passwordMatch) throw new AppError('Credenciais inválidas.', 401)
+  console.log('Comparando senha...')
+  const passwordMatch = await bcrypt.compare(data.password, user.password)
+  console.log('Senha correta:', passwordMatch)
+  
+  if (!passwordMatch) throw new AppError('Credenciais inválidas.', 401)
 
-    const token = jwt.sign({ userId: user.id }, env.jwtSecret, { expiresIn: '7d' })
-    return { token, userId: user.id }
-  }
+  const token = jwt.sign({ userId: user.id }, env.jwtSecret, { expiresIn: '7d' })
+  console.log('Token gerado, retornando...')
+  return { token, userId: user.id }
+}
 }
